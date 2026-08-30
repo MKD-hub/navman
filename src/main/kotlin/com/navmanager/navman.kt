@@ -1,17 +1,24 @@
 package com.navmanager
 
-class NavMan(var currentRoute: String) {
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+
+class NavMan(initialRoute: String) {
+
+    private val _currentRoute = MutableStateFlow(initialRoute)
+    val currentRoute: StateFlow<String> = _currentRoute.asStateFlow()
 
     var prevRoutes: MutableList<String> = mutableListOf()
 
     fun goTo(routeName: String) {
-        prevRoutes.add(currentRoute)
-        currentRoute = routeName
+        prevRoutes.add(_currentRoute.value)
+        _currentRoute.value = routeName
     }
 
     fun goBack(): Boolean {
-        val previousRoute = prevRoutes.removeLastOrNull() ?: return false
-        currentRoute = previousRoute
+        val lastRoute = prevRoutes.removeLastOrNull() ?: return false
+        _currentRoute.value = lastRoute
         return true
     }
 }
