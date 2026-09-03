@@ -3,7 +3,7 @@ package com.navmanager
 data class RouteNode(
     val segmentName: String,
     val staticChildren: MutableMap<String, RouteNode> = mutableMapOf(),
-    val paramChild: RouteNode?,
+    var paramChild: RouteNode?,
     val isEndOfRoute: Boolean,
     val routePattern: String?
 )
@@ -23,11 +23,31 @@ class RouteTree {
         routePattern = "/"
     )
 
-    // fun getNode(node: RouteNode? = rootNode, routeSegment: String): RouteNode? {
-    //     val route = rp.normalize(routeSegment)
-    //     val paths = route.routeName.split("/") as MutableList
-    //
-    // }
+    fun getNode(node: RouteNode? = rootNode, routeSegment: String): RouteNode? {
+        val route = rp.normalize(routeSegment)
+        val paths = route.routeName.split("/").filterNot { it.isBlank() }
+
+        var current: RouteNode? = rootNode
+
+        for (segment in paths) {
+            val paramNode = current?.paramChild
+            current = when {
+                segment.startsWith(":") -> {
+                    if (paramNode != null && paramNode.segmentName == segment) {
+                        paramNode
+                    } else {
+                        return null
+                    }
+                }
+                current?.staticChildren?.containsKey(segment) == true -> {
+                    current.staticChildren[segment]
+                }
+                else -> return null
+            }
+        }
+
+        return current
+    }
 
     fun insert(path: String): RouteNode {
         val route: NormalizedRouteParamPair = rp.normalize(path)
@@ -36,19 +56,33 @@ class RouteTree {
         var current = rootNode
 
         for (segment in paths) {
-            if (current.staticChildren[segment] == null) {
-                val route = RouteNode(
-                    segmentName = segment,
-                    staticChildren = mutableMapOf(),
-                    paramChild = null,
-                    isEndOfRoute = segment == paths.last(),
-                    routePattern = ""
-                )
-
-                current.staticChildren[segment] = route
+            val isLastSegment = (segment == paths.last())
+            when {
+                segment.startsWith(":") -> {
+                    if (current.paramChild == null) {
+                        current.paramChild = RouteNode(
+                            segmentName = segment,
+                            staticChildren = mutableMapOf(),
+                            paramChild = null,
+                            isEndOfRoute = isLastSegment,
+                            routePattern = if (isLastSegment) route.routeName else null
+                        )
+                    }
+                    current = current.paramChild!!
+                }
+                else -> {
+                    if (current.staticChildren[segment] == null) {
+                        current.staticChildren[segment] = RouteNode(
+                            segmentName = segment,
+                            staticChildren = mutableMapOf(),
+                            paramChild = null,
+                            isEndOfRoute = isLastSegment,
+                            routePattern = if (isLastSegment) route.routeName else null
+                        )
+                    }
+                    current = current.staticChildren[segment]!!
+                }
             }
-
-            current = current.staticChildren[segment]!!
         }
 
         return current
