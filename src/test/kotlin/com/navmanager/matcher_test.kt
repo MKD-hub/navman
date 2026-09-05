@@ -14,6 +14,11 @@ import kotlin.test.Test
 class TestMatcher {
     @Test
     fun `should call hanlder with correct params`() {
+	var capturedParams: Map<String, String>? = null
 
+	val builder = RouteBuilder<(Map<String, String>) -> Unit>()
+		      .addRoute("/home/admin/:id") { params -> 
+			capturedParams = params
+		      }
     }
 }
