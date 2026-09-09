@@ -1,30 +1,31 @@
-# NavMan 🧭
+# NavMan
 
 A lightweight, zero-dependency, Trie-based navigation and route-matching engine written in pure Kotlin.
 
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0+-7F52FF.svg?style=flat&logo=kotlin&logoColor=white)](https://kotlinlang.org)
 [![Tests](https://img.shields.io/badge/Tests-20%20passing-brightgreen.svg)]()
 [![Platform](https://img.shields.io/badge/Platform-JVM%20%7C%20Android%20%7C%20KMP-blue.svg)]()
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-`navman` provides high-performance URL pattern matching and reactive navigation state management without any coupling to Jetpack Compose, Android, or third-party frameworks. It can be used anywhere: desktop, Android, backend (Ktor), or Kotlin Multiplatform.
-
----
-
-## ✨ Features
-
-- **🌲 Trie-Powered Resolution**: $O(L)$ lookup performance where $L$ is the depth of URL segments, completely independent of the number of registered routes.
-- **🎯 Static-First Precedence**: Exact static paths (e.g. `/home/admin/overview`) always take priority over dynamic parameter wildcards (e.g. `/home/admin/:id`).
-- **🔀 Order-Independent Registration**: Register deep routes before or after shallow routes. Intermediate container nodes are automatically upgraded into endpoints without state conflicts.
-- **🏷️ Path & Query Parameter Binding**: Automatically extracts dynamic path tokens (`:id`, `:postId`) and decodes query strings (`?sort=desc&active`), merging them into a unified `params` map.
-- **⚡ Reactive StateFlow History**: Built-in LIFO back-stack controller (`NavMan`) exposing `StateFlow<String>` for immediate thread-safe UI binding.
-- **🛡️ Duplicate Protection**: Throws `DuplicateValueException` when registering identical endpoint patterns.
-- **🎨 ASCII Tree Visualization**: Inspect your route hierarchy in your terminal or tests using `routeTree.prettyPrint()`.
+navman provides high-performance URL pattern matching and reactive navigation state management without any coupling to Jetpack Compose, Android, or third-party frameworks. It can be used anywhere: desktop, Android, backend (Ktor), or Kotlin Multiplatform.
 
 ---
 
-## 🚀 Quickstart
+## Features
 
-### 1. Define Routes with `RouteBuilder`
+- **Trie-Powered Resolution**: O(L) lookup performance where L is the depth of URL segments, completely independent of the number of registered routes.
+- **Static-First Precedence**: Exact static paths (e.g. `/home/admin/overview`) always take priority over dynamic parameter wildcards (e.g. `/home/admin/:id`).
+- **Order-Independent Registration**: Register deep routes before or after shallow routes. Intermediate container nodes are automatically upgraded into endpoints without state conflicts.
+- **Path and Query Parameter Binding**: Automatically extracts dynamic path tokens (`:id`, `:postId`) and decodes query strings (`?sort=desc&active`), merging them into a unified `params` map.
+- **Reactive StateFlow History**: Built-in LIFO back-stack controller (`NavMan`) exposing `StateFlow<String>` for immediate thread-safe UI binding.
+- **Duplicate Protection**: Throws `DuplicateValueException` when registering identical endpoint patterns.
+- **ASCII Tree Visualization**: Inspect your route hierarchy in your terminal or tests using `routeTree.prettyPrint()`.
+
+---
+
+## Quickstart
+
+### 1. Define Routes with RouteBuilder
 
 Use the generic `RouteBuilder<P>` to register patterns and bind generic handlers (lambdas, screen composables, or metadata objects):
 
@@ -48,7 +49,7 @@ val matcher = builder.build()
 
 ---
 
-### 2. Match URLs with `RouteMatcher`
+### 2. Match URLs with RouteMatcher
 
 Pass raw or normalized URLs into `matcher.match()`:
 
@@ -73,7 +74,7 @@ if (result.routeNode != null) {
 
 ---
 
-### 3. Reactive Backstack Navigation with `NavMan`
+### 3. Reactive Backstack Navigation with NavMan
 
 Manage forward navigation and back-stack history with `NavMan`:
 
@@ -120,7 +121,7 @@ Output:
 
 ---
 
-## 🏛️ Architecture
+## Architecture
 
 ```
 Raw URL: "/home/admin/108?sort=desc"
@@ -147,7 +148,7 @@ Raw URL: "/home/admin/108?sort=desc"
 
 ---
 
-## 🧪 Testing
+## Testing
 
 Run the test suite with Gradle:
 
@@ -165,6 +166,6 @@ All 20 unit tests verify:
 
 ---
 
-## 📄 License
+## License
 
-This project is licensed under the Apache License 2.0.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
