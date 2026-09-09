@@ -16,8 +16,8 @@ class RouteParser {
     return NormalizedRouteParamPair(routeName = normalizedString, params = params.lastOrNull())
   }
 
-  fun parseQuery(queryParams: String): Map<String, String> {
-    if (queryParams.isBlank()) return emptyMap()
+  fun parseQuery(queryParams: String?): Map<String, String> {
+    if (queryParams.isNullOrBlank()) return emptyMap()
     val queries = queryParams.split("&")
     val qMap =
             queries.associate { query ->
