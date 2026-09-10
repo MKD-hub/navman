@@ -3,7 +3,7 @@
 A lightweight, zero-dependency, Trie-based navigation and route-matching engine written in pure Kotlin.
 
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0+-7F52FF.svg?style=flat&logo=kotlin&logoColor=white)](https://kotlinlang.org)
-[![Tests](https://img.shields.io/badge/Tests-20%20passing-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/Tests-21%20passing-brightgreen.svg)]()
 [![Platform](https://img.shields.io/badge/Platform-JVM%20%7C%20Android%20%7C%20KMP-blue.svg)]()
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
@@ -156,7 +156,7 @@ Run the test suite with Gradle:
 ./gradlew test
 ```
 
-All 20 unit tests verify:
+All 21 unit tests verify:
 - Iterative pointer walks and Trie insertions
 - Static route priority over dynamic parameters
 - Out-of-order route declarations and container node upgrading
