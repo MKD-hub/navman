@@ -54,4 +54,10 @@ class RouteMatcher<P>(val tree: RouteTree<P>) {
 
     return Route(name = normalizedRoute.routeName, params = paramsMap, routeNode = current)
   }
+
+  fun match(path: String): Route<P> {
+    val rs = RouteParser()
+    return match(rs.normalize(path))
+  }
 }
+

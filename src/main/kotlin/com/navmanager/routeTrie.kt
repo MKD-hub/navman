@@ -29,8 +29,8 @@ class RouteTree<P> {
                   segmentName = "/",
                   staticChildren = mutableMapOf(),
                   paramChild = null,
-                  isEndOfRoute = true,
-                  routePattern = "/",
+                  isEndOfRoute = false,
+                  routePattern = null,
                   handler = null
           )
 

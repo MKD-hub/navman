@@ -3,17 +3,22 @@ package com.navmanager
 class RouteParser {
   fun normalize(routeString: String): NormalizedRouteParamPair {
     // val route = routeString.trim()
-    val params = routeString.split("?")
-    val normalizedStringList = params[0].split("/").filterNot { it.isBlank() }
+    val parts = routeString.split("?", limit = 2)
+    val normalizedStringList = parts[0].split("/").filterNot { it.isBlank() }
 
     val normalizedString =
-            normalizedStringList.joinToString(prefix = "/", separator = "/", postfix = "/")
+            if (normalizedStringList.isEmpty()) "/"
+            else normalizedStringList.joinToString(prefix = "/", separator = "/", postfix = "/")
 
-    if (params.last() == "") {
-      throw IllegalArgumentException("cannot parse empty query params")
-    }
+    val queryPart =
+            if (parts.size > 1) {
+              if (parts[1].isBlank()) {
+                throw IllegalArgumentException("cannot parse empty query params")
+              }
+              parts[1]
+            } else null
 
-    return NormalizedRouteParamPair(routeName = normalizedString, params = params.lastOrNull())
+    return NormalizedRouteParamPair(routeName = normalizedString, params = queryPart)
   }
 
   fun parseQuery(queryParams: String?): Map<String, String> {

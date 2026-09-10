@@ -4,17 +4,28 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class NavMan(initialRoute: String) {
+class NavMan<P>(
+    val matcher: RouteMatcher<P>,
+    initialPath: String
+) {
+    private val _currentRoute: MutableStateFlow<Route<P>> =
+        MutableStateFlow(matcher.match(initialPath))
+    val currentRoute: StateFlow<Route<P>> = _currentRoute.asStateFlow()
 
-    // having this in state flow essentially makes currentRoute observable to another thread
-    private val _currentRoute = MutableStateFlow(initialRoute)
-    val currentRoute: StateFlow<String> = _currentRoute.asStateFlow()
+    private val prevRoutes: MutableList<Route<P>> = mutableListOf()
 
-    var prevRoutes: MutableList<String> = mutableListOf()
+    fun goTo(path: String): Boolean {
+        val resolvedRoute = matcher.match(path)
+        if (resolvedRoute.routeNode == null) return false
 
-    fun goTo(routeName: String) {
         prevRoutes.add(_currentRoute.value)
-        _currentRoute.value = routeName
+        _currentRoute.value = resolvedRoute
+        return true
+    }
+
+    fun goTo(route: Route<P>) {
+        prevRoutes.add(_currentRoute.value)
+        _currentRoute.value = route
     }
 
     fun goBack(): Boolean {
@@ -23,3 +34,4 @@ class NavMan(initialRoute: String) {
         return true
     }
 }
+
