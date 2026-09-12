@@ -2,7 +2,7 @@ plugins {
   kotlin("jvm") version "2.0.0"
 }
 
-group = "com.rss.navmanager"
+group = "com.navmanager"
 version = "1.0.0"
 
 dependencies {
