@@ -8,30 +8,41 @@ import kotlin.test.assertNotNull
 // TestRouteBuilder: Unit test suite for RouteBuilder initialization and validation
 
 class TestRouteBuilder {
-  @Test
-  fun `test build immutable trie`() {
-    val rb =
+    @Test
+    fun `test build immutable trie`() {
+        val rb =
             RouteBuilder<String>()
+                .addRoute("/home", "h")
+                .addRoute("/home/admin/builder", "o")
+                .addRoute("/home/admin/builder/:id", "m")
+                .build()
+
+        assertNotNull(rb)
+    }
+
+    @Test
+    fun `should fail on duplicate route`() {
+        val rb = RouteBuilder<String>()
+        val error =
+            assertFailsWith<DuplicateValueException> {
+                rb.addRoute("/home/admin/builder/:id/posts", "f")
+                    .addRoute("/home/admin/builder/:id/posts/:postId", "r")
+                    .addRoute("/home/admin/builder/:id", "m")
                     .addRoute("/home", "h")
                     .addRoute("/home/admin/builder", "o")
-                    .addRoute("/home/admin/builder/:id", "m")
-                    .build()
-
-    assertNotNull(rb)
-  }
-
-  @Test
-  fun `should fail on duplicate route`() {
-    val rb = RouteBuilder<String>()
-    val error =
-            assertFailsWith<DuplicateValueException> {
-              rb.addRoute("/home/admin/builder/:id/posts", "f")
-                      .addRoute("/home/admin/builder/:id/posts/:postId", "r")
-                      .addRoute("/home/admin/builder/:id", "m")
-                      .addRoute("/home", "h")
-                      .addRoute("/home/admin/builder", "o")
-                      .addRoute("/home", "h")
+                    .addRoute("/home", "h")
             }
-    assertEquals("duplicate route not allowed", error.message)
-  }
+        assertEquals("duplicate route not allowed", error.message)
+    }
+
+    @Test
+    fun `should fail on duplicate param child`() {
+        val rb = RouteBuilder<String>()
+        val error =
+            assertFailsWith<DuplicateValueException> {
+                rb.addRoute("/home/admin/builder/:id", "f")
+                    .addRoute("/home/admin/builder/:id", "m")
+            }
+        assertEquals("duplicate route not allowed", error.message)
+    }
 }
