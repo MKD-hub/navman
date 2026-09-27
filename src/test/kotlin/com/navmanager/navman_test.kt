@@ -2,6 +2,8 @@ package com.navmanager
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+import kotlin.test.assertFalse
 
 class NavmanTest {
     private val builder = RouteBuilder<String>()
@@ -56,6 +58,37 @@ class NavmanTest {
         val success = nm.goTo("/nonexistent/unknown")
         assertEquals(false, success)
         assertEquals("/home/", nm.currentRoute.value.name)
+    }
+
+    @Test
+    fun `can go back should be true when we can go back`() {
+        val nm = NavMan(matcher = matcher, initialPath = "/")
+        nm.goTo("/home")
+        nm.goTo("/feeds")
+
+        assertTrue(nm.canGoBack.value)
+
+    }
+
+    @Test
+    fun `canGoBack should always be false when at the start`() {
+        val nm = NavMan(matcher = matcher, initialPath = "/")
+        assertFalse(nm.canGoBack.value)
+    }
+
+    @Test
+    fun `canGoBack should return false even after we remove some routes`() {
+        val nm = NavMan(matcher = matcher, initialPath = "/")
+
+        nm.goTo("/home")
+        nm.goTo("/feeds")
+
+        assertTrue(nm.goBack())
+        assertTrue(nm.canGoBack.value)
+        assertTrue(nm.goBack())
+
+        assertEquals("/", nm.currentRoute.value.name)
+        assertFalse(nm.canGoBack.value)
     }
 }
 
