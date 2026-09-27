@@ -3,4 +3,5 @@ build/
 .idea/
 *.iml
 *.db
+notes/
 
