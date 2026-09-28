@@ -3,7 +3,8 @@
 A lightweight, zero-dependency, Trie-based navigation and route-matching engine written in pure Kotlin.
 
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0+-7F52FF.svg?style=flat&logo=kotlin&logoColor=white)](https://kotlinlang.org)
-[![Tests](https://img.shields.io/badge/Tests-21%20passing-brightgreen.svg)]()
+[![CI](https://github.com/MKD-hub/navman/actions/workflows/ci.yml/badge.svg)](https://github.com/MKD-hub/navman/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/badge/Tests-27%20passing-brightgreen.svg)]()
 [![Platform](https://img.shields.io/badge/Platform-JVM%20%7C%20Android%20%7C%20KMP-blue.svg)]()
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
@@ -17,8 +18,9 @@ navman provides high-performance URL pattern matching and reactive navigation st
 - **Static-First Precedence**: Exact static paths (e.g. `/home/admin/overview`) always take priority over dynamic parameter wildcards (e.g. `/home/admin/:id`).
 - **Order-Independent Registration**: Register deep routes before or after shallow routes. Intermediate container nodes are automatically upgraded into endpoints without state conflicts.
 - **Path and Query Parameter Binding**: Automatically extracts dynamic path tokens (`:id`, `:postId`) and decodes query strings (`?sort=desc&active`), merging them into a unified `params` map.
-- **Reactive StateFlow History**: Built-in LIFO back-stack controller (`NavMan`) exposing `StateFlow<String>` for immediate thread-safe UI binding.
-- **Duplicate Protection**: Throws `DuplicateValueException` when registering identical endpoint patterns.
+- **Reactive StateFlow Navigation**: Built-in LIFO controller (`NavMan`) exposing `currentRoute`, `backStack`, and `canGoBack` via `StateFlow` for immediate thread-safe UI binding.
+- **Duplicate Navigation Guard**: Automatically prevents pushing duplicate routes to history when re-navigating to the active route.
+- **Duplicate Registration Protection**: Throws `DuplicateValueException` when registering identical endpoint patterns.
 - **ASCII Tree Visualization**: Inspect your route hierarchy in your terminal or tests using `routeTree.prettyPrint()`.
 
 ---
@@ -82,21 +84,26 @@ Manage forward navigation and back-stack history with `NavMan`:
 import com.navmanager.NavMan
 import kotlinx.coroutines.flow.collect
 
-val nav = NavMan(initialRoute = "/home")
+// Initialize NavMan with the compiled matcher and root path:
+val nav = NavMan(matcher = matcher, initialPath = "/home")
 
 // Collect route changes reactively:
 // In Jetpack Compose: val currentRoute by nav.currentRoute.collectAsState()
 coroutineScope.launch {
     nav.currentRoute.collect { route ->
-        println("Current Screen: $route")
+        println("Current Screen: ${route.name}")
     }
 }
 
-nav.navigate("/articles/42")
-nav.navigate("/settings")
+nav.goTo("/articles/42") // Returns true
+nav.goTo("/articles/42") // Returns false (duplicate route ignored)
+nav.goTo("/settings")
 
-nav.goBack() // Returns true, currentRoute emits "/articles/42"
-nav.goBack() // Returns true, currentRoute emits "/home"
+println(nav.canGoBack.value)    // true
+println(nav.backStack.value)    // [Route(/home), Route(/articles/42)]
+
+nav.goBack() // Returns true, navigates back to "/articles/42"
+nav.goBack() // Returns true, navigates back to "/home"
 nav.goBack() // Returns false (cannot pop root route)
 ```
 
@@ -156,13 +163,14 @@ Run the test suite with Gradle:
 ./gradlew test
 ```
 
-All 21 unit tests verify:
+All 27 unit tests verify:
 - Iterative pointer walks and Trie insertions
 - Static route priority over dynamic parameters
 - Out-of-order route declarations and container node upgrading
 - Dynamic path parameter and multi-query decoding
 - Duplicate endpoint detection and 404 container protection
 - Back-stack LIFO history popping and reactive StateFlow emission
+- Duplicate navigation prevention and backstack depth integrity
 
 ---
 
