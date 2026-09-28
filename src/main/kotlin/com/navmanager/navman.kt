@@ -14,28 +14,36 @@ class NavMan<P>(
     val currentRoute: StateFlow<Route<P>> = _currentRoute.asStateFlow()
     val canGoBack: StateFlow<Boolean> = _canGoBack.asStateFlow()
 
-    private val prevRoutes: MutableList<Route<P>> = mutableListOf()
+    private val _backStack: MutableStateFlow<List<Route<P>>> = MutableStateFlow(emptyList())
+    val backStack: StateFlow<List<Route<P>>> = _backStack.asStateFlow()
 
     fun goTo(path: String): Boolean {
         val resolvedRoute = matcher.match(path)
         if (resolvedRoute.routeNode == null) return false
+        if (resolvedRoute == currentRoute.value) return false
 
-        prevRoutes.add(_currentRoute.value)
+        _backStack.value += _currentRoute.value
         _currentRoute.value = resolvedRoute
-        _canGoBack.value = prevRoutes.isNotEmpty()
+        _canGoBack.value = _backStack.value.isNotEmpty()
         return true
     }
 
     fun goTo(route: Route<P>) {
-        prevRoutes.add(_currentRoute.value)
+        if (route == currentRoute.value) return
+
+        _backStack.value += _currentRoute.value
         _currentRoute.value = route
-        _canGoBack.value = prevRoutes.isNotEmpty()
+        _canGoBack.value = _backStack.value.isNotEmpty()
     }
 
     fun goBack(): Boolean {
-        val lastRoute = prevRoutes.removeLastOrNull() ?: return false
+
+        val currentBackStack = _backStack.value
+        val lastRoute = currentBackStack.lastOrNull() ?: return false
+
+        _backStack.value = currentBackStack.dropLast(1)
         _currentRoute.value = lastRoute
-        _canGoBack.value = prevRoutes.isNotEmpty()
+        _canGoBack.value = _backStack.value.isNotEmpty()
         return true
     }
 }

@@ -2,6 +2,7 @@ package com.navmanager
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 import kotlin.test.assertFalse
 
@@ -83,12 +84,42 @@ class NavmanTest {
         nm.goTo("/home")
         nm.goTo("/feeds")
 
+        // feeds
         assertTrue(nm.goBack())
+
+        // home
         assertTrue(nm.canGoBack.value)
+
         assertTrue(nm.goBack())
 
         assertEquals("/", nm.currentRoute.value.name)
         assertFalse(nm.canGoBack.value)
+    }
+
+    @Test
+    fun `should not allow adding the same route you're currently on`() {
+        val nm = NavMan(matcher = matcher, initialPath = "/")
+        nm.goTo("/home")
+
+        assertFalse(nm.goTo("/home"))
+        assertEquals("/home/", nm.currentRoute.value.name)
+
+        // check if we cannot go back
+        // because we tried to goTo /home twice we shouldn't have /home in the prevRoutes array twice
+        nm.goBack()
+        assertFalse(nm.canGoBack.value)
+
+        // this means the current route is "/" and the prevRoutes has been popped
+        assertEquals(0, nm.backStack.value.size)
+    }
+
+    @Test
+    fun `overloaded goTo function shouldn't allow navigating to current route`() {
+        val nm = NavMan(matcher = matcher, initialPath = "/")
+        nm.goTo("/home")
+        nm.goTo(nm.currentRoute.value)
+
+        assertEquals(1, nm.backStack.value.size)
     }
 }
 
