@@ -122,4 +122,3 @@ class NavmanTest {
         assertEquals(1, nm.backStack.value.size)
     }
 }
-
